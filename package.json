@@ -1,0 +1,24 @@
+{
+  "name": "fun-pouchdb",
+  "version": "1.0.0",
+  "description": "Thin PouchDB wrapper for convenient server use",
+  "main": "index.js",
+  "scripts": {
+    "test": "tap test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jhs/fun-pouchdb.git"
+  },
+  "keywords": [
+    "pouchdb",
+    "couchdb",
+    "cloudant"
+  ],
+  "author": "Jason Smith <jason.h.smith@gmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/jhs/fun-pouchdb/issues"
+  },
+  "homepage": "https://github.com/jhs/fun-pouchdb#readme"
+}
