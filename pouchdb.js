@@ -69,7 +69,7 @@ function get_db(name, options, callback) {
     
   // If no validation function was cached, and none is provided, warn the user.
   if (! validation_function)
-    console.log('WARN: fun-pouchdb: DB %s has no validation function; be careful!')
+    console.log('WARN: fun-pouchdb: DB %s has no validation function; be careful!', name)
 
   debug('Get DB: %j %j', name, opts)
   return new PouchDB(name, opts, function(er, db) {
