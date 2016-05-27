@@ -20,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/jhs/fun-pouchdb/issues"
   },
-  "homepage": "https://github.com/jhs/fun-pouchdb#readme"
+  "homepage": "https://github.com/jhs/fun-pouchdb#readme",
+  "dependencies": {
+    "pouchdb": "^5.3.2",
+    "txn": "^1.1.2"
+  }
 }
