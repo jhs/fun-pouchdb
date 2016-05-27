@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/jhs/fun-pouchdb#readme",
   "dependencies": {
+    "async": "^2.0.0-rc.5",
     "debug": "^2.2.0",
     "leveldown": "^1.4.6",
     "pouchdb": "^5.3.2",
