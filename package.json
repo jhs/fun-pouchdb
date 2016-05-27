@@ -26,5 +26,8 @@
     "leveldown": "^1.4.6",
     "pouchdb": "^5.3.2",
     "txn": "^1.1.2"
+  },
+  "devDependencies": {
+    "memdown": "^1.1.2"
   }
 }
