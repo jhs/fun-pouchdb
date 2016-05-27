@@ -9,7 +9,7 @@ var leveldown = require('leveldown')
 var prep_ddocs = require('./prep_ddocs.js')
 var bulk_docs_validate = require('./bulk_docs_validate.js')
 
-var PREFIX = __dirname + '/../../db/_pouch/'
+var PREFIX = __dirname + '/_data/'
 
 
 // Fun PouchDB includes Txn, because Txn is nice.
@@ -54,6 +54,9 @@ function get_db(name, options, callback) {
     console.log('WARN: fun-pouchdb: Fallback prefix: %s', PREFIX)
     opts.prefix = PREFIX
   }
+
+  if (! opts.prefix.endsWith('/'))
+    opts.prefix += '/'
 
   // It is not allowed to provide a different validation function if one has already been cached.
   var validation_function = get_validation_function(opts.prefix, name)
