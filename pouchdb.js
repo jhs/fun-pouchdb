@@ -50,9 +50,8 @@ function get_db(name, options, callback) {
              }
 
   if (! opts.prefix) {
-    console.log('WARN: fun-pouchdb: No directory prefix specified; supply a .prefix option, or set $POUCHDB_PREFIX')
-    console.log('WARN: fun-pouchdb: Fallback prefix: %s', PREFIX)
     opts.prefix = PREFIX
+    console.log('WARN: fun-pouchdb: No directory prefix specified; supply a .prefix option, or set $POUCHDB_PREFIX; using %s', opts.prefix)
   }
 
   if (! opts.prefix.endsWith('/'))
@@ -65,7 +64,7 @@ function get_db(name, options, callback) {
 
   // If no validation function is cached, but one was provided in the options, then use that, and cache it.
   if (!validation_function && opts.validate)
-    validation_function = set_validation_function(opts.prefix, name, opts.validate)
+    validation_function = cache_validation_function(opts.prefix, name, opts.validate)
     
   // If no validation function was cached, and none is provided, warn the user.
   if (! validation_function)
@@ -88,18 +87,22 @@ function get_db(name, options, callback) {
   })
 }
 
-function set_validation_function(prefix, db_name, func) {
-  var key = prefix + ':' + db_name
+function validation_key(prefix, db_name) {
+  return prefix + db_name
+}
+
+function cache_validation_function(prefix, db_name, func) {
+  var key = validation_key(prefix, db_name)
   if (VALIDATION_CACHE[key])
     throw new Error(`Validation function for DB ${key} already exists`)
 
-  debug('Set validation function: %s', key)
+  debug('Cache validation function: %s', key)
   VALIDATION_CACHE[key] = func
 
   return func
 }
 
 function get_validation_function(prefix, db_name) {
-  var key = prefix + ':' + db_name
+  var key = validation_key(prefix, db_name)
   return VALIDATION_CACHE[key]
 }

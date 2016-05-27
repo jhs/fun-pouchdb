@@ -4,7 +4,7 @@ var async = require('async')
 var debug = require('debug')('fun-pouchdb:prep-ddocs')
 
 function prep_ddocs(db, ddocs, callback) {
-  var db_name = this._fun.name
+  var db_name = db._fun.name
   debug('Prepare %s design documents for DB: %s', ddocs.length, db_name)
   async.forEach(ddocs, prep_ddoc, ddocs_prepared)
 
@@ -44,7 +44,7 @@ function prep_ddocs(db, ddocs, callback) {
     if (er)
       return callback(er)
 
-    debug('Completed preparing %s design documents in DB: %s', this._fun.name)
+    debug('Completed preparing %s design documents in DB: %s', ddocs.length, db_name)
     callback()
   }
 }
