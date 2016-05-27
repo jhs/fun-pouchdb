@@ -1,3 +1,8 @@
+require('defaultable')(module,
+  { prefix: null
+  }, function(module, exports, DEFAULT) {
+
+
 module.exports = get_db
 module.exports.uuid = random_uuid
 
@@ -8,8 +13,6 @@ var leveldown = require('leveldown')
 
 var prep_ddocs = require('./prep_ddocs.js')
 var bulk_docs_validate = require('./bulk_docs_validate.js')
-
-var PREFIX = __dirname + '/_data/'
 
 
 // Fun PouchDB includes Txn, because Txn is nice.
@@ -44,15 +47,13 @@ function get_db(name, options, callback) {
 
   options = options || {}
   var opts = { db      : options.db       || leveldown
-             , prefix  : options.prefix   || process.env.POUCHDB_PREFIX
+             , prefix  : options.prefix   || process.env.POUCHDB_PREFIX || DEFAULT.prefix
              , ddocs   : options.ddocs    || []
              , validate: options.validate || null
              }
 
-  if (! opts.prefix) {
-    opts.prefix = PREFIX
-    console.log('WARN: fun-pouchdb: No directory prefix specified; supply a .prefix option, or set $POUCHDB_PREFIX; using %s', opts.prefix)
-  }
+  if (opts.db === leveldown && !opts.prefix)
+    throw new Error(`No directory prefix specified; supply a .prefix option, or set $POUCHDB_PREFIX`)
 
   if (! opts.prefix.endsWith('/'))
     opts.prefix += '/'
@@ -106,3 +107,5 @@ function get_validation_function(prefix, db_name) {
   var key = validation_key(prefix, db_name)
   return VALIDATION_CACHE[key]
 }
+
+}) // defaultable
