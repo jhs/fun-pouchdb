@@ -1,5 +1,6 @@
 module.exports = bulkDocsValidate
 
+var debug = require('debug')('fun-pouchdb:validation')
 var PouchDB = require('pouchdb')
 
 // Overwriting bulkDocs via a plugin does not work for some reason that I cannot remember.
