@@ -83,7 +83,11 @@ function get_db(name, options, callback) {
     db.bulkDocs = bulk_docs_validate
 
     prep_ddocs(db, opts.ddocs, function(er) {
-      callback(er, db)
+      // Promises are swallowing errors thrown by the callback. For now, just bust out of the promise until I fix this.
+      setImmediate(function() {
+        debug('About to call callback er=%j', !!er)
+        callback(er, db)
+      })
     })
   })
 }
