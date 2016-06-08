@@ -19,17 +19,8 @@ var bulk_docs_validate = require('./bulk_docs_validate.js')
 PouchDB.plugin(txn.PouchDB)
 
 
-// The user might instantiate a database twice, i.e. they run get_db('foo'); ...; get_db('foo'). In fact that is suggested usage. It is possible
-// that they do not register validation functions the second time, or that they register them differently. If that happens, there are two
-// ways to fail here:
-//
-// 1. Either the user thinks validation is happening, but it is not, or
-// 2. The user actually intends different validation for each instance, but we cache the validation functions and overzealously apply it
-//
-// Both are bad, but case 1 is worse. Therefore, for a given prefix + DB name, we cache validation functions. The only thing the user can
-// do is add more, but never take them away. To take them away, restart the program. Also, ddocs are persistent a database, so it makes sense
-// that validation functions are too.
-var VALIDATION_CACHE = {}
+// Repeated calls to get_db('foo') will return the same object.
+var DB_CACHE = {}
 
 
 function random_uuid() {
@@ -48,8 +39,9 @@ function get_db(name, options, callback) {
   options = options || {}
   var opts = { db      : options.db       || leveldown
              , prefix  : options.prefix   || process.env.POUCHDB_PREFIX || DEFAULT.prefix
+             , ddoc    : options.ddoc     || null
              , ddocs   : options.ddocs    || []
-             , validate: options.validate || null
+             , validate: options.validate || complaining_validator
              }
 
   if (opts.db === leveldown && !opts.prefix)
@@ -58,18 +50,13 @@ function get_db(name, options, callback) {
   if (! opts.prefix.endsWith('/'))
     opts.prefix += '/'
 
-  // It is not allowed to provide a different validation function if one has already been cached.
-  var validation_function = get_validation_function(opts.prefix, name)
-  if (validation_function && opts.validate && validation_function !== opts.validate)
-    throw new Error(`Validation function already set for DB ${name}; cannot change it`)
-
-  // If no validation function is cached, but one was provided in the options, then use that, and cache it.
-  if (!validation_function && opts.validate)
-    validation_function = cache_validation_function(opts.prefix, name, opts.validate)
-    
-  // If no validation function was cached, and none is provided, warn the user.
-  if (! validation_function)
-    console.log('WARN: fun-pouchdb: DB %s has no validation function; be careful!', name)
+  var cache_key = opts.prefix + name
+  if (DB_CACHE[cache_key]) {
+    debug('Return cached DB: %s', cache_key)
+    return setImmediate(function() {
+      callback(null, DB_CACHE[cache_key])
+    })
+  }
 
   debug('Get DB: %j %j', name, opts)
   return new PouchDB(name, opts, function(er, db) {
@@ -78,7 +65,10 @@ function get_db(name, options, callback) {
 
     db._fun = {}
     db._fun.name = name
-    db._fun.validate = validation_function
+    db._fun.validate = opts.validate // XXX This could fall out of sync with db.validate.
+
+    // Also stick it in .validate for convenience.
+    db.validate = opts.validate
 
     db.bulkDocs = bulk_docs_validate
 
@@ -92,24 +82,8 @@ function get_db(name, options, callback) {
   })
 }
 
-function validation_key(prefix, db_name) {
-  return prefix + db_name
-}
-
-function cache_validation_function(prefix, db_name, func) {
-  var key = validation_key(prefix, db_name)
-  if (VALIDATION_CACHE[key])
-    throw new Error(`Validation function for DB ${key} already exists`)
-
-  debug('Cache validation function: %s', key)
-  VALIDATION_CACHE[key] = func
-
-  return func
-}
-
-function get_validation_function(prefix, db_name) {
-  var key = validation_key(prefix, db_name)
-  return VALIDATION_CACHE[key]
+function complaining_validator(doc) {
+  console.log('WARN: No validation for DB %s for doc: %s!', doc._id, this._fun.name)
 }
 
 }) // defaultable
