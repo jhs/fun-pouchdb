@@ -7,6 +7,7 @@ module.exports = get_db
 module.exports.uuid = random_uuid
 
 var txn = require('txn')
+var async = require('async')
 var debug = require('debug')('fun-pouchdb:api')
 var PouchDB = require('pouchdb')
 var leveldown = require('leveldown')
@@ -33,6 +34,26 @@ function get_db(name, options, callback) {
     options = {}
   }
 
+  if (Array.isArray(name)) {
+    debug('Get an array of DBs: %j', name)
+    return async.map(name, get_one, return_obj)
+  }
+
+  function get_one(element_name, to_async) {
+    get_db(element_name, options, to_async)
+  }
+
+  function return_obj(er, dbs) {
+    if (er)
+      return callback(er)
+
+    var result = {}
+    for (var i = 0; i < name.length; i++)
+      result[name[i]] = dbs[i]
+
+    callback(null, result)
+  }
+  
   if (typeof name != 'string')
     throw new Error(`Must provide a name: ${name}`)
 
