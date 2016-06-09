@@ -35,7 +35,7 @@ function prep_ddocs(db, ddocs, callback) {
         return to_async(er)
 
       var result = (txr.stores == 0) ? 'No change' : 'Updated'
-      debug('Prepared ddoc %s/%s: %s', db_name, doc._id, result)
+      debug('Prepared ddoc %s/%s: %s', db_name, new_ddoc._id, result)
       return to_async(null)
     }
   }
