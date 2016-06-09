@@ -38,9 +38,20 @@ function get_db(name, options, callback) {
     debug('Get an array of DBs: %j', name)
     return async.map(name, get_one, return_obj)
   }
+  
+  if (name && typeof name == 'object') {
+    debug('Get an object of DBs: %j', name)
+    var dbs = Object.keys(name).map(function(db_name) {
+      return {name:db_name, options:name[db_name]}
+    })
+    return async.map(dbs, get_one, return_obj)
+  }
 
-  function get_one(element_name, to_async) {
-    get_db(element_name, options, to_async)
+  function get_one(opts, to_async) {
+    debug('get_one %j', opts)
+    if (typeof opts == 'string')
+      opts = {name:opts}
+    get_db(opts.name, opts.options || options, to_async)
   }
 
   function return_obj(er, dbs) {
@@ -60,13 +71,15 @@ function get_db(name, options, callback) {
   options = options || {}
   var opts = { db      : options.db       || leveldown
              , prefix  : options.prefix   || process.env.POUCHDB_PREFIX || DEFAULT.prefix
-             , ddoc    : options.ddoc     || null
              , ddocs   : options.ddocs    || []
              , validate: options.validate || complaining_validator
              }
 
   if (opts.db === leveldown && !opts.prefix)
     throw new Error(`No directory prefix specified; supply a .prefix option, or set $POUCHDB_PREFIX`)
+
+  if (options.ddoc)
+    opts.ddocs.push(options.ddoc)
 
   if (! opts.prefix.endsWith('/'))
     opts.prefix += '/'
@@ -104,7 +117,7 @@ function get_db(name, options, callback) {
 }
 
 function complaining_validator(doc) {
-  console.log('WARN: No validation for DB %s for doc: %s!', doc._id, this._fun.name)
+  console.log('WARN: No validation n %s for doc: %s!', this._fun.name, doc._id)
 }
 
 }) // defaultable
