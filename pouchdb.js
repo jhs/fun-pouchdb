@@ -12,9 +12,12 @@ var debug = require('debug')('fun-pouchdb:api')
 var PouchDB = require('pouchdb')
 var leveldown = require('leveldown')
 
+var Cloudant = require('./cloudant.js')
 var prep_ddocs = require('./prep_ddocs.js')
 var bulk_docs_validate = require('./bulk_docs_validate.js')
 
+
+PouchDB.plugin(Cloudant)
 
 // Fun PouchDB includes Txn, because Txn is nice.
 PouchDB.plugin(txn.PouchDB)
@@ -73,6 +76,7 @@ function get_db(name, options, callback) {
              , prefix  : options.prefix   || process.env.POUCHDB_PREFIX || DEFAULT.prefix
              , ddocs   : options.ddocs    || []
              , validate: options.validate || complaining_validator
+             , cloudant: options.cloudant || null
              }
 
   if (opts.db === leveldown && !opts.prefix)
@@ -109,6 +113,12 @@ function get_db(name, options, callback) {
     db.bulkDocs = bulk_docs_validate
 
     prep_ddocs(db, opts.ddocs, function(er) {
+      debug('Cache db: %s', cache_key)
+      DB_CACHE[cache_key] = db
+
+      if(opts.cloudant && opts.cloudant.account && opts.cloudant.password)
+        db.cloudant(opts.cloudant)
+
       callback(er, db)
     })
   }) // setImmediate
