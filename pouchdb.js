@@ -58,10 +58,10 @@ function get_db(name, options, callback) {
     if (er)
       return callback(er)
 
+    debug('Build an object of %s DBs', dbs.length)
     var result = {}
-    for (var i = 0; i < name.length; i++)
-      result[name[i]] = dbs[i]
-
+    for (var db of dbs)
+      result[db._fun.name] = db
     callback(null, result)
   }
   
