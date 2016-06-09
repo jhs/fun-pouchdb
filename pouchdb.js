@@ -117,7 +117,7 @@ function get_db(name, options, callback) {
 }
 
 function complaining_validator(doc) {
-  console.log('WARN: No validation n %s for doc: %s!', this._fun.name, doc._id)
+  console.log('WARN: No validation function in %s for doc: %s!', this._fun.name, doc._id)
 }
 
 }) // defaultable
