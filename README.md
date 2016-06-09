@@ -36,6 +36,9 @@ However, the most common thing to do in a real world application is to provide a
 // the value is the options for that database.
 var opts = {}
 
+// Make an "inventory" database with default options.
+opts.inventory = {}
+
 // A "ddoc" option will ensure that design document will be in the database.
 opts.users = { ddoc: {_id:'_design/foo', views: {}} }
 
