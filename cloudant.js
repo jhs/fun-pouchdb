@@ -12,7 +12,7 @@ function sync_with_cloudant(options) {
 
   debug('Begin push replication')
   return db.replicate.to(cloudant_url, {batch_size:1000, filter:is_not_ddoc})
-    .on('active', function() { debug('Begin push: %s', target) })
+    .on('active', function() { debug('Begin push: %s.cloudant.com/%s', options.account, name) })
     .on('denied', function(er) { setImmediate(function() { db.emit('error', er) }) })
     .on('error' , function(er) { setImmediate(function() { db.emit('error', er) }) })
     .on('paused', function(er) { debug('Pause: %j', er) })
