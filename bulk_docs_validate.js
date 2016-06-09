@@ -12,6 +12,7 @@ function bulkDocsValidate(body, options, callback) {
     options = {}
   }
 
+  var self = this
   var validate = this.validate || this._fun.validate
 
   if (Array.isArray(body))
@@ -32,7 +33,7 @@ function bulkDocsValidate(body, options, callback) {
     var failure = null
     try {
       if (validate)
-        validate(doc)
+        validate.call(self, doc)
     } catch (er) {
       failure = er
     }
