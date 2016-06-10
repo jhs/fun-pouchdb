@@ -46,8 +46,17 @@ function bulkDocsValidate(body, options, callback) {
     }
   }
 
+  // TODO: This needs to be promise-compatible too.
+  if (!callback)
+    callback = function () {}
+
   // Now validDocs is a shorter list of valid documents. result is the complete list, either null or the validation error.
-  return bulkDocs.call(this, {docs:validDocs}, options, function(er, dbResult) {
+  var req = {}
+  for (var key in body)
+    req[key] = body[key]
+  req.docs = validDocs
+
+  return bulkDocs.call(this, req, options, function(er, dbResult) {
     if (er)
       return callback(er)
 
