@@ -11,11 +11,25 @@ function sync_with_cloudant(options) {
   var opts = { batch_size:1000, filter:is_not_ddoc, live:true, retry:true }
 
   debug('Begin push replication')
-  return db.replicate.to(cloudant_url, {batch_size:1000, filter:is_not_ddoc})
-    .on('active', function() { debug('Begin push: %s.cloudant.com/%s', options.account, name) })
+  db.cloudant_pull = db.replicate.from(cloudant_url, {batch_size:1000})
+  db.cloudant_push = db.replicate.to(cloudant_url, {batch_size:1000, filter:is_not_ddoc})
+
+  db.cloudant_pull
+    .on('active', function() { debug('Pull started: %s.cloudant.com/%s', options.account, name) })
     .on('denied', function(er) { setImmediate(function() { db.emit('error', er) }) })
     .on('error' , function(er) { setImmediate(function() { db.emit('error', er) }) })
-    .on('paused', function(er) { debug('Pause: %j', er) })
+    .on('paused', function(er) { debug('Pull paused') })
+    .on('change', report_change(db, 'Pull'))
+    .on('complete', function(info) {
+      var time = duration_label(new Date(info.start_time), new Date(info.end_time))
+      debug(`Pulled: ${info.docs_read}/${info.docs_written} read/written in ${time}`)
+    })
+
+  db.cloudant_push
+    .on('active', function() { debug('Push started: %s.cloudant.com/%s', options.account, name) })
+    .on('denied', function(er) { setImmediate(function() { db.emit('error', er) }) })
+    .on('error' , function(er) { setImmediate(function() { db.emit('error', er) }) })
+    .on('paused', function(er) { debug('Push paused') })
     .on('change', report_change(db, 'Push'))
     .on('complete', function(info) {
       if (info.errors.length > 0) {
@@ -34,18 +48,6 @@ function sync_with_cloudant(options) {
     })
 }
 
-//      function pull(target, cb) {
-//        var url = `https://${target}:${ARGV.pw}@${target}.cloudant.com/${name}`
-//        return db.replicate.from(url, {batch_size:1000})
-//          .on('active', function() { console.log('Begin pull: %s', target) })
-//          .on('denied', function(er) { setImmediate(function() { throw er }) })
-//          .on('error' , function(er) { setImmediate(function() { throw er }) })
-//          .on('change', report_change('Pull'))
-//          .on('complete', function(info) {
-//            cb({'Pulled    ': JSON.stringify(info)})
-//          })
-//      }
-//
 function report_change(db, label) {
   return reporter
   function reporter(status) {
@@ -70,4 +72,15 @@ function is_not_ddoc(doc) {
 // Return whether a document is a design document.
 function is_ddoc(doc) {
   return !! doc._id.match(/^_design\//)
+}
+
+function duration_label(start, end) {
+  var ms = end - start
+  var seconds = ms / 1000
+  var minutes = seconds / 60
+  seconds = Math.round((minutes % 1) * 60)
+  minutes = Math.floor(minutes)
+  if (seconds < 10)
+    seconds = '0' + seconds
+  return `${minutes}:${seconds}`
 }
