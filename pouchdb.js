@@ -106,6 +106,7 @@ function get_db(name, options, callback) {
     db._fun = {}
     db._fun.name = name
     db._fun.validate = opts.validate // XXX This could fall out of sync with db.validate.
+    db._fun.cloudant = opts.cloudant
 
     // Also stick it in .validate for convenience.
     db.validate = opts.validate
