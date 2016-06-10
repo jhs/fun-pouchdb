@@ -18,7 +18,7 @@ function prep_ddocs(db, ddocs, callback) {
 
       var views = doc.views || {}
       for (var view_name in views) {
-        var view = views[vew_name]
+        var view = views[view_name]
 
         if (typeof view.map == 'function')
           view.map = view.map.toString()
