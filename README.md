@@ -7,6 +7,7 @@ The common scenario is, you have a Node.js application, usually a server. You ne
 1. Open some databases by name
 2. Let me specify any design docs I need, as a JavaScript object
 3. Let me provide a simple throws/doesn't-throw function to validate a doc
+4. Everything should always be synced with Cloudant
 
 Usage:
 
@@ -95,3 +96,9 @@ DB(opts, function(er, dbs) {
   })
 })
 ```
+
+## Automatic Cloudant Sync
+
+If you provide an option, `"cloudant": {"account":"my-cloudant-account", "password":"my-password"}` then the database will be kept in sync with its counterpart in your Cloudant account. The DB name is the same.
+
+Note, Fun PouchDB does not sync design documents. They are considered to be part of your application code. You should manage it in Git, with your application.
