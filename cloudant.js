@@ -3,7 +3,6 @@ module.exports = { cloudant: sync_with_cloudant }
 var debug = require('debug')('fun-pouchdb:cloudant')
 
 function sync_with_cloudant(options) {
-  debug('sync_with_cloudant: %j', options)
   var db = this
   var name = db._fun.name
 
@@ -11,8 +10,8 @@ function sync_with_cloudant(options) {
   var opts = { batch_size:1000, filter:is_not_ddoc, live:true, retry:true }
 
   debug('Begin push replication')
-  db.cloudant_pull = db.replicate.from(cloudant_url, {batch_size:1000})
-  db.cloudant_push = db.replicate.to(cloudant_url, {batch_size:1000, filter:is_not_ddoc})
+  db.cloudant_pull = db.replicate.from(cloudant_url, {batch_size:1000, live:true, retry:true})
+  db.cloudant_push = db.replicate.to(cloudant_url, {batch_size:1000, live:true, retry:true, filter:is_not_ddoc})
 
   db.cloudant_pull
     .on('active', function() { debug('Pull started: %s.cloudant.com/%s', options.account, name) })
