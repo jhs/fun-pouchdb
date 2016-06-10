@@ -6,7 +6,7 @@ require('defaultable')(module,
 module.exports = get_db
 module.exports.uuid = random_uuid
 
-var txn = require('txn')
+var txn = require('txn').defaults({timestamps: true})
 var async = require('async')
 var debug = require('debug')('fun-pouchdb:api')
 var PouchDB = require('pouchdb')
