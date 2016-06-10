@@ -1,6 +1,6 @@
 {
   "name": "fun-pouchdb",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "Thin PouchDB wrapper for convenient server use",
   "main": "pouchdb.js",
   "scripts": {
