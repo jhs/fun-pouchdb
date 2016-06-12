@@ -6,6 +6,11 @@ function sync_with_cloudant(options) {
   var db = this
   var name = db._fun.name
 
+  // Give the user a quick way to call up a URL to edit a document.
+  db._fun.cloudant.edit = function(id) {
+    return `https://${options.account}.cloudant.com/dashboard.html#/database/${name}/${encodeURIComponent(id)}`
+  }
+
   var cloudant_url = `https://${options.account}:${options.password}@${options.account}.cloudant.com/${name}`
   var opts = { batch_size:1000, filter:is_not_ddoc, live:true, retry:true }
 
