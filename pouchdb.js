@@ -10,6 +10,7 @@ var txn = require('txn').defaults({timestamps: true})
 var async = require('async')
 var debug = require('debug')('fun-pouchdb:api')
 var PouchDB = require('pouchdb')
+var PouchDBUtils = require('pouchdb-utils')
 var leveldown = require('leveldown')
 
 var Cloudant = require('./cloudant.js')
@@ -28,7 +29,7 @@ var DB_CACHE = {}
 
 
 function random_uuid() {
-  return PouchDB.utils.uuid()
+  return PouchDBUtils.uuid()
 }
 
 function get_db(name, options, callback) {
