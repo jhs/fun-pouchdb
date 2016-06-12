@@ -98,10 +98,11 @@ function get_db(name, options, callback) {
 
   debug('Get DB: %j %j', name, opts)
   // Promises are swallowing errors thrown by the callback. For now, just bust out of the promise until I fix this.
-  return new PouchDB(name, opts, function(er, db) {
-  setImmediate(function() {
+  var db = new PouchDB(name, opts)
+  db.info(function(er, info) { setImmediate(function() {
     if (er)
       return callback(er)
+    debug('Info for %s: %j', name, info)
 
     db.fun = {}
     db.fun.name = name
@@ -123,8 +124,7 @@ function get_db(name, options, callback) {
 
       callback(er, db)
     })
-  }) // setImmediate
-  })
+  }) }) // setImmediate
 }
 
 function complaining_validator(doc) {
