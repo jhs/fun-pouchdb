@@ -105,6 +105,7 @@ function get_db(name, options, callback) {
 
     db.fun = {}
     db.fun.name = name
+    db.fun.uuid = random_uuid
     db.fun.validate = opts.validate // XXX This could fall out of sync with db.validate.
     db.fun.cloudant = opts.cloudant
 
