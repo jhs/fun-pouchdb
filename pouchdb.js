@@ -64,7 +64,7 @@ function get_db(name, options, callback) {
     debug('Build an object of %s DBs', dbs.length)
     var result = {}
     for (var db of dbs)
-      result[db._fun.name] = db
+      result[db.fun.name] = db
     callback(null, result)
   }
   
@@ -103,10 +103,10 @@ function get_db(name, options, callback) {
     if (er)
       return callback(er)
 
-    db._fun = {}
-    db._fun.name = name
-    db._fun.validate = opts.validate // XXX This could fall out of sync with db.validate.
-    db._fun.cloudant = opts.cloudant
+    db.fun = {}
+    db.fun.name = name
+    db.fun.validate = opts.validate // XXX This could fall out of sync with db.validate.
+    db.fun.cloudant = opts.cloudant
 
     // Also stick it in .validate for convenience.
     db.validate = opts.validate
@@ -127,7 +127,7 @@ function get_db(name, options, callback) {
 }
 
 function complaining_validator(doc) {
-  console.log('WARN: No validation function in %s for doc: %j!', this._fun.name, doc)
+  console.log('WARN: No validation function in %s for doc: %j!', this.fun.name, doc)
 }
 
 }) // defaultable

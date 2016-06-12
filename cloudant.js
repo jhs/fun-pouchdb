@@ -4,10 +4,10 @@ var debug = require('debug')('fun-pouchdb:cloudant')
 
 function sync_with_cloudant(options) {
   var db = this
-  var name = db._fun.name
+  var name = db.fun.name
 
   // Give the user a quick way to call up a URL to edit a document.
-  db._fun.cloudant.edit = function(id) {
+  db.fun.cloudant.edit = function(id) {
     return `https://${options.account}.cloudant.com/dashboard.html#/database/${name}/${encodeURIComponent(id)}`
   }
 

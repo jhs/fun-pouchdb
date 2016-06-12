@@ -13,7 +13,7 @@ function bulkDocsValidate(body, options, callback) {
   }
 
   var self = this
-  var validate = this.validate || this._fun.validate
+  var validate = this.validate || this.fun.validate
 
   if (Array.isArray(body))
     var docs = body
