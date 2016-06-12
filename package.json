@@ -27,6 +27,7 @@
     "defaultable": "^0.7.2",
     "leveldown": "^1.4.6",
     "pouchdb": "^5.4.1",
+    "pouchdb-utils": "=5.4.1",
     "txn": "^1.2.0"
   },
   "devDependencies": {
