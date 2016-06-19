@@ -2,7 +2,7 @@ module.exports = { cloudant: sync_with_cloudant }
 
 var debug = require('debug')('fun-pouchdb:cloudant')
 
-var BATCH_SIZE = 1000
+var BATCH_SIZE = 10
 
 function sync_with_cloudant(options) {
   var db = this
