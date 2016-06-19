@@ -116,10 +116,6 @@ function block_ddocs_by_default(doc) {
   return !! doc.on_cloudant
 }
 
-// Return whether a document is a design document.
-function is_ddoc(doc) {
-}
-
 function duration_label(start, end) {
   var ms = end - start
   var seconds = ms / 1000
