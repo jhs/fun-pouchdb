@@ -86,6 +86,8 @@ function get_db(name, options, callback) {
   if (options.ddoc)
     opts.ddocs.push(options.ddoc)
 
+  opts.ddocs.push(util_ddoc())
+
   if (! opts.prefix.endsWith('/'))
     opts.prefix += '/'
 
@@ -130,6 +132,29 @@ function get_db(name, options, callback) {
 
 function complaining_validator(doc) {
   console.log('WARN: No validation function in %s for doc: %j!', this.fun.name, doc)
+}
+
+function util_ddoc() {
+  return {
+    _id: '_design/util',
+    on_cloudant: true,
+    options: {include_design:true},
+    views: {
+      'conflict': {
+        reduce: '_count',
+        map: function(doc) {
+          if (doc._conflicts) {
+            // Emit this winning revision.
+            emit(doc._id, doc._rev)
+
+            // Emit all conflicting revisions.
+            for (var i = 0; i < doc._conflicts.length; i++)
+              emit(doc._id, doc._conflicts[i])
+          }
+        }
+      }
+    }
+  }
 }
 
 }) // defaultable
