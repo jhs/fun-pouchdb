@@ -13,7 +13,10 @@ function prep_ddocs(db, ddocs, callback) {
     db.txn({id:ddoc._id, create:true}, populate_ddoc, ddoc_stored)
 
     function populate_ddoc(doc, to_txn) {
-      for (var key in ddoc)
+      for (var key in doc)
+        if (key[0] != '_' && !(key in ddoc))
+          delete doc[key]
+      for (key in ddoc)
         doc[key] = ddoc[key]
 
       var views = doc.views || {}
