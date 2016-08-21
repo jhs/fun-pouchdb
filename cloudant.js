@@ -4,7 +4,7 @@ var debug = require('debug')('fun-pouchdb:cloudant')
 
 
 var DEFAULT_TIMEOUT = 10 * 1000
-var DEFAULT_BATCH_SIZE = 1000
+var DEFAULT_BATCH_SIZE = 100
 
 function sync_with_cloudant(options) {
   var db = this
