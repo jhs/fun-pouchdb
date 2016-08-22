@@ -13,11 +13,12 @@ function prep_ddocs(db, ddocs, callback) {
     db.txn({id:ddoc._id, create:true}, populate_ddoc, ddoc_stored)
 
     function populate_ddoc(doc, to_txn) {
-      for (var key in doc)
-        if (key[0] != '_' && !(key in ddoc))
-          delete doc[key]
       for (key in ddoc)
         doc[key] = ddoc[key]
+
+      // If on_cloudant had been removed, then make sure it's gone.
+      if (! ('on_cloudant' in ddoc))
+        delete doc.on_cloudant
 
       var views = doc.views || {}
       for (var view_name in views) {
