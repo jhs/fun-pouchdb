@@ -66,8 +66,8 @@ function sync_with_cloudant(options) {
 
     db.cloudant_pull
       .on('active', function() { debug('Pull started: %s.cloudant.com/%s', options.account, name) })
-      .on('denied', function(er) { setImmediate(function() { db.emit('error', er) }) })
-      .on('error' , function(er) { setImmediate(function() { db.emit('error', er) }) })
+      .on('denied', handle_error)
+      .on('error' , handle_error)
       .on('paused', function(er) { debug('Pull paused') })
       .on('change', report_change(db, 'Pull'))
       .on('complete', function(info) {
@@ -77,8 +77,8 @@ function sync_with_cloudant(options) {
 
     db.cloudant_push
       .on('active', function() { debug('Push started: %s.cloudant.com/%s', options.account, name) })
-      .on('denied', function(er) { setImmediate(function() { db.emit('error', er) }) })
-      .on('error' , function(er) { setImmediate(function() { db.emit('error', er) }) })
+      .on('denied', handle_error)
+      .on('error' , handle_error)
       .on('paused', function(er) { debug('Push paused') })
       .on('change', report_change(db, 'Push'))
       .on('complete', function(info) {
@@ -96,6 +96,16 @@ function sync_with_cloudant(options) {
         var time = duration_label(new Date(info.start_time), new Date(info.end_time))
         debug(`Pushed: ${info.docs_read}/${info.docs_written} read/written in ${time}`)
       })
+
+    function handle_error(er) {
+      if (er && er.name == 'compilation_error')
+        return db.emit('warn', 'Design document compilation error: ' + er.reason)
+
+      // Otherwise forward the error through.
+      setImmediate(function() {
+        db.emit('error', er)
+      })
+    }
   } // go_online
 }
 
