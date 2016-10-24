@@ -1,6 +1,7 @@
 module.exports = { cloudant: sync_with_cloudant }
 
 var debug = require('debug')('fun-pouchdb:cloudant')
+var EventEmitter = require('events').EventEmitter
 
 
 var DEFAULT_TIMEOUT = 10 * 1000
@@ -64,24 +65,58 @@ function sync_with_cloudant(options) {
     db.cloudant_push = db.replicate.to(cloudant_url  , { batch_size:batch, live:true, retry:true, timeout:timeout
                                                        , filter:block_ddocs_by_default})
 
+    // A "sync" is actually just a push and a pull happening at the same time. Mostly, they run independently of each
+    // other except that a doc written by the pull will trigger that doc to go back through the push, and vice versa.
+    // In both cases, there is a no-op because the remote DB obviously has that revision already.
+    //
+    // Anyway, there is no great way to detect a "sync" event. But one quick heuristic is when both replications pause.
+    // In practice, we could look at the timing, and compare changes feeds but this is a good start.
+    db.fun.sync = new EventEmitter
+    var is_paused = {push:false, pull:false}
+    function activity(direction, type) {
+      var replicator = (direction == 'pull') ? db.cloudant_pull : db.cloudant_push
+
+      is_paused[direction] = (type == 'paused')
+
+      if (is_paused.push && is_paused.pull) {
+        debug('Looks like the sync is done for now')
+        db.fun.sync.emit('sync')
+      }
+
+    }
+
     db.cloudant_pull
-      .on('active', function() { debug('Pull started: %s.cloudant.com/%s', options.account, name) })
       .on('denied', handle_error)
       .on('error' , handle_error)
-      .on('paused', function(er) { debug('Pull paused') })
       .on('change', report_change(db, 'Pull'))
+      .on('active', function() {
+        debug('Pull started: %s.cloudant.com/%s', options.account, name)
+        activity('pull', 'active')
+      })
+      .on('paused', function(er) {
+        debug('Pull paused')
+        activity('pull', 'paused')
+      })
       .on('complete', function(info) {
         var time = duration_label(new Date(info.start_time), new Date(info.end_time))
         debug(`Pulled: ${info.docs_read}/${info.docs_written} read/written in ${time}`)
+        activity('pull', 'complete')
       })
 
     db.cloudant_push
-      .on('active', function() { debug('Push started: %s.cloudant.com/%s', options.account, name) })
       .on('denied', handle_error)
       .on('error' , handle_error)
-      .on('paused', function(er) { debug('Push paused') })
       .on('change', report_change(db, 'Push'))
+      .on('active', function() {
+        debug('Push started: %s.cloudant.com/%s', options.account, name)
+        activity('push', 'active')
+      })
+      .on('paused', function(er) {
+        debug('Push paused')
+        activity('push', 'paused')
+      })
       .on('complete', function(info) {
+        activity('push', 'paused')
         if (info.errors.length > 0) {
           for (var er of info.errors)
             db.emit('error', new Error(JSON.stringify(er)))
