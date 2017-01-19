@@ -1,12 +1,13 @@
 require('defaultable')(module,
   { prefix: null
+  , txn   : {timestamps: true}
   }, function(module, exports, DEFAULT) {
 
 
 module.exports = get_db
 module.exports.uuid = random_uuid
 
-var txn = require('txn').defaults({timestamps: true})
+var txn = require('txn').defaults(DEFAULT.txn)
 var async = require('async')
 var debug = require('debug')('fun-pouchdb:api')
 var PouchDB = require('pouchdb')
