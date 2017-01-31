@@ -10,7 +10,7 @@ module.exports.uuid = random_uuid
 var txn = require('txn').defaults(DEFAULT.txn)
 var async = require('async')
 var debug = require('debug')('fun-pouchdb:api')
-var PouchDB = require('pouchdb')
+var PouchDB = require('pouchdb-node')
 var PouchDBUtils = require('pouchdb-utils')
 var leveldown = require('leveldown')
 
