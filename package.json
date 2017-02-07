@@ -25,7 +25,7 @@
     "async": "^2.0.0-rc.5",
     "debug": "^2.2.0",
     "defaultable": "^0.7.2",
-    "leveldown": "^1.4.6",
+    "leveldown": "^1.6.0",
     "pouchdb-node": "^6.1.1",
     "pouchdb-utils": "=5.4.1",
     "txn": "^1.2.0"
