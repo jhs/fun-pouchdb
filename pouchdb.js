@@ -113,6 +113,7 @@ function get_db(name, options, callback) {
     db.fun.uuid = random_uuid
     db.fun.validate = opts.validate // XXX This could fall out of sync with db.validate.
     db.fun.cloudant = opts.cloudant
+    db.fun.warm_view = function(path) { return warm_view(db, path) }
 
     // Also stick it in .validate for convenience.
     db.validate = opts.validate
@@ -129,6 +130,20 @@ function get_db(name, options, callback) {
       callback(er, db)
     })
   }) }) // setImmediate
+}
+
+function warm_view(db, view_path) {
+  var warmer_begin = new Date
+  return db.query(view_path, {reduce:false, limit:1})
+    .then(result => {
+      var warmer_end = new Date
+      var warm_duration_ms = warmer_end - warmer_begin
+      debug('Warmed "%s" in %s ms: %s rows', view_path, warm_duration_ms, result.total_rows)
+      return {total_rows:result.total_rows, duration:warm_duration_ms}
+    })
+    .catch(er => {
+      debug('ERROR warming view querying %j', view_path, er)
+    })
 }
 
 function complaining_validator(doc) {
