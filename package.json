@@ -26,7 +26,7 @@
     "debug": "^2.2.0",
     "defaultable": "^0.7.2",
     "leveldown": "^1.7.2",
-    "pouchdb-node": "^6.1.1",
+    "pouchdb-node": "^6.3.4",
     "pouchdb-utils": "=5.4.1",
     "txn": "^1.2.0"
   },
